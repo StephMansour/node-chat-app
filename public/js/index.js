@@ -19,7 +19,7 @@ socket.on("newLocationMessage", function(message) {
   const li = document.createElement("li");
   var a = document.createElement("a");
   a.setAttribute("target", "_blank");
-  a.setAttribute('href', message.url)
+  a.setAttribute("href", message.url);
   a.innerText = "My current location";
   li.innerText = `${message.from}: `;
   li.appendChild(a);
@@ -27,16 +27,18 @@ socket.on("newLocationMessage", function(message) {
 });
 
 const form = document.getElementById("message-form");
-const input = document.querySelector("[name=message]");
+const messageTextbox = document.querySelector("[name=message]");
 form.addEventListener("submit", e => {
   e.preventDefault();
   socket.emit(
     "createMessage",
     {
       from: "User",
-      text: input.value
+      text: messageTextbox.value
     },
-    function() {}
+    function() {
+      messageTextbox.value = "";
+    }
   );
 });
 
@@ -46,14 +48,21 @@ locationButton.addEventListener("click", () => {
     return alert("Geolocation not supported");
   }
 
+  locationButton.setAttribute("disabled", "disabled")
+  locationButton.innerText = 'Sending location...';
+
   navigator.geolocation.getCurrentPosition(
     function(position) {
+      locationButton.removeAttribute("disabled")
+      locationButton.innerText = 'Send location';
       socket.emit("createLocationMessage", {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude
       });
     },
     function() {
+      locationButton.removeAttribute("disabled")
+      locationButton.innerText = 'Send location';
       alert("Unable to fetch location.");
     }
   );
