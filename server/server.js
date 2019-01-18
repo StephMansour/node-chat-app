@@ -13,16 +13,15 @@ var io = socketIO(server);
 app.use(express.static(publicPath));
 
 io.on("connection", socket => {
-  console.log("new user connected");
-
   socket.emit("newMessage", generateMessage("Admin", "Welcome to chat app"));
 
   socket.broadcast.emit("newMessage", generateMessage("Admin","A new user joined"));
 
-  socket.on("createMessage", message => {
+  socket.on("createMessage", (message, cb) => {
     console.log("createMessage", message);
 
     io.emit("newMessage", generateMessage(message.from, message.text));
+    cb("This is from the server");
   });
 
   socket.on("disconnect", () => {
